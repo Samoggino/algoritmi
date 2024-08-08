@@ -2,12 +2,10 @@ import java.io.BufferedReader;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
-import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.HashSet;
-import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.TreeSet;
 
 /**
  * Ogni livello dell'albero è una riga della mappa, dove la chiave è il livello
@@ -16,20 +14,25 @@ import java.util.Set;
  * 
  */
 public class Esercizio1 {
-    static class TreeNode {
+    static class TreeNode implements Comparable<TreeNode> {
         int value;
-        List<TreeNode> children;
+        Set<TreeNode> children;
         TreeNode padre;
 
         TreeNode(int value) {
             this.value = value;
-            this.children = new ArrayList<>();
+            this.children = new TreeSet<>();
             this.padre = null;
         }
 
         @Override
         public String toString() {
             return "TreeNode [value=" + value + ", children=" + children + "]";
+        }
+
+        @Override
+        public int compareTo(TreeNode other) {
+            return Integer.compare(this.value, other.value);
         }
     }
 
@@ -38,10 +41,10 @@ public class Esercizio1 {
         // ricorda che il file parent_child_pairs.txt è nella cartella es1, dovrà essere
         // eseguito da terminale, quindi il path sarà parent_child_pairs.txt
         Map<Integer, TreeNode> nodeMap = new HashMap<>();
-        Set<Integer> childrenSet = new HashSet<>();
+        Set<Integer> childrenSet = new TreeSet<>();
         BufferedReader br;
         try {
-            br = new BufferedReader(new FileReader("algoritmi-esercizi/es1/parent_child_pairs.txt"));
+            br = new BufferedReader(new FileReader("es1/parent_child_pairs.txt"));
             String line;
             while ((line = br.readLine()) != null) {
                 line = line.trim();
@@ -55,6 +58,7 @@ public class Esercizio1 {
                 TreeNode childNode = nodeMap.computeIfAbsent(childValue, k -> new TreeNode(k));
 
                 parentNode.children.add(childNode);
+                childNode.padre = parentNode;
             }
         } catch (FileNotFoundException e) {
             e.printStackTrace();
@@ -116,6 +120,7 @@ public class Esercizio1 {
                 // aumenta un livello
                 livello++;
 
+                // FIXME: Trova un modo più efficiente per trovare il numero
                 // Trova il numero che segue l'apertura della parentesi
                 int end = 1;
                 while (end < line.length() && Character.isDigit(line.charAt(end))) {
@@ -166,6 +171,53 @@ public class Esercizio1 {
         return root;
     }
 
+    static boolean areTreesEqual(TreeNode root1, TreeNode root2) {
+        // if (root1 == null && root2 == null)
+        // return true;
+        // if (root1 == null || root2 == null) {
+        // System.out.println("c'è un null");
+        // return false;
+        // }
+        // if (root1.value != root2.value) {
+        // System.out.println("Valori diversi");
+        // return false;
+        // }
+
+        // // Compare children ignoring the order
+        // if (root1.children.size() != root2.children.size())
+        // return false;
+
+        // Sort and compare children by converting them into sets
+        Set<Integer> childSet1 = new TreeSet<>();
+        for (TreeNode child : root1.children) {
+            childSet1.add(child.value);
+        }
+
+        Set<Integer> childSet2 = new TreeSet<>();
+        for (TreeNode child : root2.children) {
+            childSet2.add(child.value);
+        }
+
+        return recAreEquals(childSet1, childSet2);
+    }
+
+    /**
+     * Ricorsivamente controlla se due set di interi sono uguali e poi lo fa per
+     * tutti i figli
+     * 
+     * @param childSet1
+     * @param childSet2
+     * @return
+     */
+    static boolean recAreEquals(Set<Integer> childSet1, Set<Integer> childSet2) {
+
+        if (childSet1.size() != childSet2.size()) {
+            return false;
+        }
+
+        return false;
+    }
+
     public static void main(String[] args) {
 
         // if (args.length != 2) {
@@ -174,21 +226,29 @@ public class Esercizio1 {
         // System.exit(1);
         // }
 
-        String pairList = "parent_child_pairs.txt";
+        String pairList = "es1/parent_child_pairs.txt";
         String nestedList = "es1/nested2.txt";
 
         try {
-            // TreeNode tree1 = buildTreeFromPairs(pairList);
+            TreeNode tree1 = buildTreeFromPairs(pairList);
             TreeNode tree2 = buildTreeFromNestedList(nestedList);
+            printTree(tree1);
+            System.out.println();
+            System.out.println();
             printTree(tree2);
-            // TreeNode nodo = tree2.children.get(0).children.get(0).children.get(1);
-            // System.out.println("Nodo: " + nodo.value);
-            // System.out.println("Padre: " + nodo.padre.value);
+
+            if (areTreesEqual(tree1, tree2)) {
+                System.out.println("Alberi uguali");
+            } else {
+                System.out.println("Alberi diversi");
+            }
+
         } catch (NumberFormatException e) {
             e.printStackTrace();
         } catch (Exception e) {
             e.printStackTrace();
         }
+
     }
 
 }
