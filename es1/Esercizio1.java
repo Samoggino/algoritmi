@@ -103,10 +103,15 @@ public class Esercizio1 {
         Map<Integer, TreeNode[]> nodeMap = new HashMap<>();
         try {
             BufferedReader br = new BufferedReader(new FileReader("es1/nested2.txt"));
-            return recNested(br.readLine(), nodeMap, null, 0);
+
+            String line = br.readLine();
+
+            br.close();
+            return recNested(line, nodeMap, null, 0);
         } catch (IOException e) {
             e.printStackTrace();
         }
+
         return null;
     }
 
