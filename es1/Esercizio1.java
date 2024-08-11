@@ -3,8 +3,9 @@ import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
 import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Iterator;
 import java.util.Map;
-import java.util.NoSuchElementException;
 import java.util.Set;
 import java.util.TreeSet;
 
@@ -22,7 +23,7 @@ public class Esercizio1 {
 
         TreeNode(int value) {
             this.value = value;
-            this.children = new TreeSet<>();
+            this.children = new HashSet<>();
             this.padre = null;
         }
 
@@ -42,7 +43,7 @@ public class Esercizio1 {
         // ricorda che il file parent_child_pairs.txt è nella cartella es1, dovrà essere
         // eseguito da terminale, quindi il path sarà parent_child_pairs.txt
         Map<Integer, TreeNode> nodeMap = new HashMap<>();
-        Set<Integer> childrenSet = new TreeSet<>();
+        Set<Integer> childrenSet = new HashSet<>();
         BufferedReader br;
         try {
             br = new BufferedReader(new FileReader("es1/parent_child_pairs.txt"));
@@ -101,7 +102,7 @@ public class Esercizio1 {
 
     static TreeNode buildTreeFromNestedList(String filename) {
 
-        Map<Integer, TreeNode[]> nodeMap = new HashMap<>();
+        Map<Integer, TreeNode> nodeMap = new HashMap<>();
         try {
             BufferedReader br = new BufferedReader(new FileReader("es1/nested2.txt"));
 
@@ -116,7 +117,18 @@ public class Esercizio1 {
         return null;
     }
 
-    static TreeNode recNested(String line, Map<Integer, TreeNode[]> nodeMap, TreeNode root, int livello) {
+    /**
+     * Ricorsione per costruire l'albero da una stringa nested
+     * 
+     * Cerca un modo migliore per trovare il numero e non usare il padre per tornare
+     * al livello precedente
+     * 
+     * @param line
+     * @param root
+     * @param livello
+     * @return
+     */
+    static TreeNode recNested(String line, Map<Integer, TreeNode> nodeMap, TreeNode root, int livello) {
 
         if (line == null || line.isEmpty()) {
             return null;
@@ -138,17 +150,14 @@ public class Esercizio1 {
                 TreeNode nodo = new TreeNode(value);
 
                 // se il nodo padre è null, allora è la radice
-                if (root == null) {
-                    root = nodo;
-                } else {
+                if (root != null) {
                     // altrimenti aggiungi il nodo alla lista dei figli del nodo padre
                     root.children.add(nodo);
                     // setta il padre del nodo
                     nodo.padre = root;
+                } else {
+                    root = nodo;
                 }
-                // aggiungi il nodo alla mappa
-                nodeMap.put(livello, new TreeNode[] { nodo });
-                root = nodo;
 
                 // Esegui la ricorsione dal nodo appena creato
                 recNested(line.substring(end), nodeMap, nodo, livello);
@@ -177,57 +186,43 @@ public class Esercizio1 {
         return root;
     }
 
-    static boolean areTreesEqual(TreeNode root1, TreeNode root2) {
-
-        // Sort and compare children by converting them into sets
-        TreeSet<TreeNode> childSet1 = new TreeSet<>();
-        for (TreeNode child : root1.children) {
-            childSet1.add(child);
+    public static boolean areTreesEqual(TreeNode root1, TreeNode root2) {
+        if (root1 == null || root2 == null) {
+            return root1 == root2;
         }
 
-        TreeSet<TreeNode> childSet2 = new TreeSet<>();
-        for (TreeNode child : root2.children) {
-            childSet2.add(child);
+        if (root1.compareTo(root2) != 0) {
+            return false;
         }
 
-        return recAreEquals(childSet1, childSet2);
+        return recAreEquals(root1, root2);
     }
 
-    /**
-     * Ricorsivamente controlla se due set di interi sono uguali e poi lo fa per
-     * tutti i figli
-     * 
-     * @param childSet1
-     * @param childSet2
-     * @return
-     */
-    static boolean recAreEquals(TreeSet<TreeNode> childSet1, TreeSet<TreeNode> childSet2) {
+    private static boolean recAreEquals(TreeNode root1, TreeNode root2) {
+        TreeSet<TreeNode> childSet1 = new TreeSet<>(root1.children);
+        TreeSet<TreeNode> childSet2 = new TreeSet<>(root2.children);
 
         if (childSet1.size() != childSet2.size()) {
             return false;
-        } else if (childSet1.size() < 1 || childSet2.size() < 1) {
-            return true;
         }
 
-        try {
+        if (root1.value != root2.value) {
+            return false;
+        }
 
-            if (childSet1.equals(childSet2)) {
-                if (areTreesEqual(childSet1.first(), childSet2.first())) {
-                    return true;
-                }
+        Iterator<TreeNode> iter1 = childSet1.iterator();
+        Iterator<TreeNode> iter2 = childSet2.iterator();
+
+        while (iter1.hasNext() && iter2.hasNext()) {
+            TreeNode child1 = iter1.next();
+            TreeNode child2 = iter2.next();
+
+            if (!recAreEquals(child1, child2)) {
+                return false;
             }
-        } catch (NullPointerException e) {
-            System.out.println("NullPointer: " + e.getMessage());
-            return false;
-        } catch (NoSuchElementException e) {
-            System.out.println("Set is empty: " + e.getMessage());
-            return false;
-        } catch (Exception e) {
-            System.out.println("Errore: " + e.getMessage());
-            e.printStackTrace();
         }
 
-        return false;
+        return true;
     }
 
     public static void main(String[] args) {
@@ -243,8 +238,8 @@ public class Esercizio1 {
 
         TreeNode tree1 = buildTreeFromPairs(pairList);
         TreeNode tree2 = buildTreeFromNestedList(nestedList);
+
         printTree(tree1);
-        System.out.println();
         System.out.println();
         printTree(tree2);
 
