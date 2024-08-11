@@ -10,10 +10,7 @@ import java.util.Set;
 import java.util.TreeSet;
 
 /**
- * Ogni livello dell'albero è una riga della mappa, dove la chiave è il livello
- * nell'albero
- * e il valore è una lista di nodi che si trovano a quel livello.
- * 
+ * Controllare
  */
 public class Esercizio1 {
     static class TreeNode implements Comparable<TreeNode> {
@@ -43,7 +40,6 @@ public class Esercizio1 {
         // ricorda che il file parent_child_pairs.txt è nella cartella es1, dovrà essere
         // eseguito da terminale, quindi il path sarà parent_child_pairs.txt
         Map<Integer, TreeNode> nodeMap = new HashMap<>();
-        Set<Integer> childrenSet = new HashSet<>();
         BufferedReader br;
         try {
             br = new BufferedReader(new FileReader("es1/parent_child_pairs.txt"));
@@ -72,8 +68,9 @@ public class Esercizio1 {
 
         // Find root node (node that is not a child of any other node)
         for (int nodeValue : nodeMap.keySet()) {
-            if (!childrenSet.contains(nodeValue)) {
-                return nodeMap.get(nodeValue);
+            TreeNode node = nodeMap.get(nodeValue);
+            if (node.padre == null) {
+                return node;
             }
         }
 
@@ -173,10 +170,10 @@ public class Esercizio1 {
                 recNested(line.substring(1), nodeMap, root, livello);
                 break;
 
-            case ',':
-                // Continua con la ricorsione ignorando la virgola
-                recNested(line.substring(1), nodeMap, root, livello);
-                break;
+            // case ',':
+            // // Continua con la ricorsione ignorando la virgola
+            // recNested(line.substring(1), nodeMap, root, livello);
+            // break;
 
             default:
                 // Ignora altri caratteri e continua la ricorsione
@@ -199,8 +196,8 @@ public class Esercizio1 {
     }
 
     private static boolean recAreEquals(TreeNode root1, TreeNode root2) {
-        TreeSet<TreeNode> childSet1 = new TreeSet<>(root1.children);
-        TreeSet<TreeNode> childSet2 = new TreeSet<>(root2.children);
+        TreeSet<TreeNode> childSet1 = new TreeSet<>(root1.children); // n log n
+        TreeSet<TreeNode> childSet2 = new TreeSet<>(root2.children); // n log n
 
         if (childSet1.size() != childSet2.size()) {
             return false;
