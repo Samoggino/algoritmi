@@ -5,6 +5,7 @@ import java.io.FileReader;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Random;
 
 /**
  * Grafo orientato pesato
@@ -12,9 +13,11 @@ import java.util.List;
  */
 public class Esercizio3 {
 
+    static int num_matricola_seed = 10000;
+
     static class Node implements Comparable<Node> {
         public int id;
-        public double attesa;
+        public double attesa = 5;
 
         Node(int key) {
             this.id = key;
@@ -24,6 +27,26 @@ public class Esercizio3 {
         public int compareTo(Node arg0) {
             return Integer.compare(this.id, arg0.id);
         }
+
+        @Override
+        public String toString() {
+            return "Node [id=" + id + ", attesa=" + attesa + "]";
+        }
+
+        public double getAttesa() {
+            return this.attesa;
+        }
+
+        public Node setRandomAttesa() {
+
+            // caso 1: il valore di attesa è impostato a 5
+            // caso 2: il valore di attesa è impostato a un valore casuale con seed 10000
+
+            Random rand = new Random(num_matricola_seed);
+            this.attesa = rand.nextDouble();
+            return this;
+        }
+
     }
 
     static class Edge {
@@ -66,15 +89,11 @@ public class Esercizio3 {
                         for (int j = 0; j < numNodi; j++) {
                             this.insertNode(j);
                         }
-                    }
-
-                    if (i == 1) {
+                    } else if (i == 1) {
                         line = line.trim();
                         int numArchi = Integer.parseInt(line);
                         this.edges = new ArrayList<Edge>(numArchi);
-                    }
-
-                    if (i >= 2) {
+                    } else if (i >= 2) {
                         String[] parts = line.split(" ");
                         int nodo1 = Integer.parseInt(parts[0]);
                         int nodo2 = Integer.parseInt(parts[1]);
@@ -96,6 +115,7 @@ public class Esercizio3 {
 
         void insertNode(int nodeID) {
             this.nodes.add(new Node(nodeID));
+            // this.nodes.add(new Node(nodeID).setRandomAttesa());
         }
 
         void insertEdge(int id1, int id2, double tempo_di_percorrenza) {
@@ -106,8 +126,12 @@ public class Esercizio3 {
 
         void printGraph() {
 
+            for (Node n : this.nodes) {
+                System.out.println(n);
+            }
+
             for (Edge e : this.edges) {
-                System.out.println(e.incrocio1.id + " -- "   + e.tempo_di_percorrenza + " --> " + e.incrocio2.id);
+                System.out.println(e.incrocio1.id + " -- " + e.tempo_di_percorrenza + " --> " + e.incrocio2.id);
             }
         }
 
@@ -122,8 +146,30 @@ public class Esercizio3 {
         }
 
         // restituisce il tempo di attesa per il nodo i
-        double attesa(int i, double t) {
-            return 0;
+        double attesa(int i, double tempo_corrente) {
+            return tempo_corrente + this.nodes.get(i).getAttesa();
+            // return tempo_corrente + this.nodes.get(i).getAttesa(this.num_matricola_seed);
+        }
+
+        void camminiMinimi() {
+            // nodo sorgente e destinazione
+            Node sorgente = this.nodes.get(0);
+            Node destinazione = this.nodes.get(this.nodes.size() - 1);
+
+            // se dal nodo sorgente non si può raggiungere la destinazione, il programma
+            // stampa "NON RAGGIUNGIBILE"
+            // altrimenti stampa il tempo minimo per raggiungere la destinazione
+            // e il percorso minimo
+
+            // inizializza i tempi di arrivo a infinito
+            double[] tempi = new double[this.nodes.size()];
+            for (int i = 0; i < this.nodes.size(); i++) {
+                tempi[i] = Double.POSITIVE_INFINITY;
+            }
+
+            // il tempo di arrivo al nodo sorgente è il tempo di attesa
+            tempi[sorgente.id] = this.attesa(sorgente.id, 0);
+
         }
 
     }
@@ -132,5 +178,6 @@ public class Esercizio3 {
         Graph g = new Graph("es3/input.txt");
 
         g.printGraph();
+        g.camminiMinimi();
     }
 }
