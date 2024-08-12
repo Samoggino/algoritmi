@@ -8,21 +8,30 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.PriorityQueue;
-import java.util.Random;
 
 /**
- * Grafo orientato pesato
+ * Le operazioni di caricamento del grafo sono in O(n + m)
+ * 
+ * 
+ * Le operazioni di inizializzazione degli array sono in O(n)
+ * Le operazioni sulla coda sono in O(log n) perchè la coda è una PriorityQueue
+ * ed è implementata con un heap binario
+ * 
+ * La ricerca del cammino minimo è in O((n + m) * log n)
+ * La stampa del cammino minimo è in O(n)
+ * 
+ * La complessità totale è O((n + m) * log n)
  * 
  */
 public class Esercizio3 {
 
     // static int num_matricola_seed = 970758;
-    static Double random = new Random(10000).nextDouble();
+    // static Double random = new Random(10000).nextDouble();
 
     static class Node implements Comparable<Node> {
         public final int id;
-        // public final double attesa = 5;
-        public final double attesa = random;
+        public final double attesa = 5;
+        // public final double attesa = random;
         public final List<Node> lista_di_adiacenza = new ArrayList<>();
 
         Node(int key) {
@@ -116,7 +125,7 @@ public class Esercizio3 {
         }
 
         // restituisce il tempo di attesa per il nodo i
-        double attesa(int i, double tempo_corrente) {
+        public double attesa(int i, double tempo_corrente) {
             return tempo_corrente + this.nodes.get(i).getAttesa();
             // return tempo_corrente + this.nodes.get(i).getAttesa(this.num_matricola_seed);
         }
@@ -126,7 +135,7 @@ public class Esercizio3 {
         }
 
         public Double getArco(int id_nodo1, int id_nodo2) { // O(1)
-            return tempiMap.get(id_nodo1 + "-" + id_nodo2) + this.nodes.get(id_nodo2).getAttesa();
+            return tempiMap.get(id_nodo1 + "-" + id_nodo2);// + this.nodes.get(id_nodo2).getAttesa();
         }
 
     }
@@ -161,6 +170,9 @@ public class Esercizio3 {
         visitati[0] = true;
         queue.add(sorgente);
 
+        // se non esiste un percorso dalla sorgente alla destinazione
+        // stampa -1
+
         while (!queue.isEmpty()) {
             Node u = queue.poll(); // O(log n)
             int i = u.id;
@@ -169,9 +181,10 @@ public class Esercizio3 {
             for (Node adiacente : u.lista_di_adiacenza) {
 
                 int j = adiacente.id;
-                double tempo = graph.getArco(i, j); // O(1)
-                if (dist[j] > dist[i] + tempo) {
-                    dist[j] = dist[i] + tempo;
+                double tempo_corrente = dist[i] + graph.getArco(i, j);
+                double tempo_effettivo = graph.attesa(j, tempo_corrente); // O(1)
+                if (dist[j] > tempo_effettivo) {
+                    dist[j] = tempo_effettivo;
                     t[j] = i;
                     if (!visitati[j]) {
                         queue.add(adiacente); // O(log n)
@@ -183,27 +196,14 @@ public class Esercizio3 {
 
         } // O((n + m) * log n)
 
-        // // stampa il risultato
-        // System.out.println(dist[dim - 1]);
-
-        // // stampa il percorso
-        // int i = dim - 1;
-        // Stack<Integer> percorso = new Stack<Integer>();
-        // while (i != -1) {
-        // percorso.push(i);
-        // i = t[i];
-        // }
-
-        // while (!percorso.isEmpty()) {
-        // System.out.print(percorso.pop() + " ");
-        // }
-
-        // System.out.println();
-
-        // stampa il risultato
-        System.out.println(dist[dim - 1]);
-        printCamminiMinimi(t, dim - 1);
-        System.out.println();
+        if (dist[dim - 1] == Double.MAX_VALUE) {
+            System.out.println("Non esiste un percorso dalla sorgente alla destinazione");
+            return;
+        } else {
+            System.out.println(dist[dim - 1]);
+            printCamminiMinimi(t, dim - 1);
+            System.out.println();
+        }
     }
 
     static void printCamminiMinimi(int[] t, int i) {
