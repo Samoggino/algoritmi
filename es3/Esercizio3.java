@@ -17,16 +17,19 @@ import java.util.Stack;
  */
 public class Esercizio3 {
 
-    static int num_matricola_seed = 10000;
     // static int num_matricola_seed = 970758;
+    static Double random = new Random(10000).nextDouble();
 
     static class Node implements Comparable<Node> {
-        public int id;
-        public double attesa = 5;
-        public List<Node> lista_di_adiacenza = new ArrayList<Node>();
+        public final int id;
+        // public final double attesa = 5;
+        public final double attesa = random;
+        public final List<Node> lista_di_adiacenza = new ArrayList<>();
 
         Node(int key) {
             this.id = key;
+            // random.setSeed(10000); // da commentare in Caso 1
+            // this.attesa = random.nextDouble(); // da commentare in Caso 1
         }
 
         @Override
@@ -43,71 +46,53 @@ public class Esercizio3 {
             return this.attesa;
         }
 
-        public Double setRandomAttesa() {
-
-            // caso 1: il valore di attesa è impostato a 5
-            // caso 2: il valore di attesa è impostato a un valore casuale con seed 10000
-
-            return this.attesa = new Random(num_matricola_seed).nextDouble();
-        }
-
     }
 
     static class Graph {
-        public List<Node> nodes;
-        public Map<String, Double> tempiMap = new HashMap<>();
+        private final List<Node> nodes;
+        private Map<String, Double> tempiMap;
 
         Graph(String filename) {
-            // leggi il file e crea il grafo
+            nodes = new ArrayList<>();
 
-            /**
-             * la prima riga del file contiene il numero di nodi
-             * la seconda riga contiene il numero di archi
-             * e le successive righe contengono nodo1 nodo2 attesa
-             * 
-             */
+            buildGraph(filename);
+        }
 
+        /**
+         * la prima riga del file contiene il numero di nodi
+         * la seconda riga contiene il numero di archi
+         * e le successive righe contengono nodo1 nodo2 attesa
+         * 
+         * @param filename
+         */
+        private void buildGraph(String filename) {
             try (BufferedReader br = new BufferedReader(new FileReader(filename))) {
+                int numNodi = Integer.parseInt(br.readLine().trim());
+                int numArchi = Integer.parseInt(br.readLine().trim());
+                tempiMap = new HashMap<String, Double>(numArchi);
 
-                String line;
-                int i = 0;
-                while ((line = br.readLine()) != null) {
-
-                    if (i == 0) { // prendi numero di nodi
-                        line = line.trim();
-                        int numNodi = Integer.parseInt(line);
-                        this.nodes = new ArrayList<Node>(numNodi);
-                        for (int j = 0; j < numNodi; j++) {
-                            this.insertNode(j);
-                        }
-                    } else if (i == 1) { // prendi numero di archi
-                        line = line.trim();
-                        int numArchi = Integer.parseInt(line);
-                        tempiMap = new HashMap<>(numArchi);
-
-                    } else if (i >= 2) { // crea il grafo
-                        String[] parts = line.split(" ");
-                        int nodo1 = Integer.parseInt(parts[0]);
-                        int nodo2 = Integer.parseInt(parts[1]);
-                        line = line.trim();
-                        double tempo_di_percorrenza = Double.parseDouble(parts[2]);
-
-                        this.insertEdge(nodo1, nodo2, tempo_di_percorrenza);
-                    }
-
-                    i++;
-
+                for (int j = 0; j < numNodi; j++) {
+                    insertNode(j);
                 }
 
+                String line;
+                while ((line = br.readLine()) != null) {
+                    String[] parts = line.split(" ");
+                    int nodo1 = Integer.parseInt(parts[0]);
+                    int nodo2 = Integer.parseInt(parts[1]);
+                    double tempo_di_percorrenza = Double.parseDouble(parts[2]);
+
+                    insertEdge(nodo1, nodo2, tempo_di_percorrenza);
+                }
             } catch (IOException e) {
                 e.printStackTrace();
             }
+        }
 
-        };
-
-        void insertNode(int nodeID) {
-            this.nodes.add(new Node(nodeID));
-
+        Node insertNode(int nodeID) {
+            Node node = new Node(nodeID);
+            this.nodes.add(node);
+            return node;
             // Node node = new Node(nodeID);
             // node.setRandomAttesa();
             // this.nodes.add(node);
@@ -141,7 +126,7 @@ public class Esercizio3 {
             return nodes;
         }
 
-        public Double getArco(int id_nodo1, int id_nodo2) {
+        public Double getArco(int id_nodo1, int id_nodo2) { // O(1)
             return tempiMap.get(id_nodo1 + "-" + id_nodo2) + this.nodes.get(id_nodo2).getAttesa();
         }
 
@@ -160,15 +145,14 @@ public class Esercizio3 {
         Node sorgente = graph.nodes.get(0);
 
         // inizializza la coda dei nodi da visitare
-        PriorityQueue<Node> queue = new PriorityQueue<Node>();
+        PriorityQueue<Node> queue = new PriorityQueue<Node>(graph.nodes.size());
 
         // inizializza gli array
         int[] t = new int[dim];
         double[] dist = new double[dim];
         boolean[] visitati = new boolean[dim];
 
-        for (int i = 1; i < dim; i++) {
-            t[i] = sorgente.id;
+        for (int i = 1; i < dim; i++) { // O(n)
             dist[i] = Double.MAX_VALUE;
             visitati[i] = false;
         }
@@ -179,44 +163,57 @@ public class Esercizio3 {
         queue.add(sorgente);
 
         while (!queue.isEmpty()) {
-            Node u = queue.poll();
+            Node u = queue.poll(); // O(log n)
             int i = u.id;
             visitati[i] = false;
 
             for (Node adiacente : u.lista_di_adiacenza) {
 
                 int j = adiacente.id;
-                double tempo = graph.getArco(i, j);
+                double tempo = graph.getArco(i, j); // O(1)
                 if (dist[j] > dist[i] + tempo) {
                     dist[j] = dist[i] + tempo;
                     t[j] = i;
                     if (!visitati[j]) {
-                        queue.add(adiacente);
+                        queue.add(adiacente); // O(log n)
                         visitati[j] = true;
                     }
                 }
 
             }
 
-        }
+        } // O((n + m) * log n)
+
+        // // stampa il risultato
+        // System.out.println(dist[dim - 1]);
+
+        // // stampa il percorso
+        // int i = dim - 1;
+        // Stack<Integer> percorso = new Stack<Integer>();
+        // while (i != -1) {
+        // percorso.push(i);
+        // i = t[i];
+        // }
+
+        // while (!percorso.isEmpty()) {
+        // System.out.print(percorso.pop() + " ");
+        // }
+
+        // System.out.println();
 
         // stampa il risultato
         System.out.println(dist[dim - 1]);
-
-        // stampa il percorso
-        int i = dim - 1;
-        Stack<Integer> percorso = new Stack<Integer>();
-        while (i != -1) {
-            percorso.push(i);
-            i = t[i];
-        }
-
-        while (!percorso.isEmpty()) {
-            System.out.print(percorso.pop() + " ");
-        }
-
+        printCamminiMinimi(t, dim - 1);
         System.out.println();
+    }
 
+    static void printCamminiMinimi(int[] t, int i) {
+        if (t[i] == -1) {
+            System.out.print(i + " ");
+            return;
+        }
+        printCamminiMinimi(t, t[i]);
+        System.out.print(i + " ");
     }
 
     public static void main(String[] args) {
