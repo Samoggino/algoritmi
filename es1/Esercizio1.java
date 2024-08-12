@@ -101,7 +101,7 @@ public class Esercizio1 {
 
         Map<Integer, TreeNode> nodeMap = new HashMap<>();
         try {
-            BufferedReader br = new BufferedReader(new FileReader("es1/nested2.txt"));
+            BufferedReader br = new BufferedReader(new FileReader("es1/nested_list.txt"));
 
             String line = br.readLine();
 
