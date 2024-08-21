@@ -231,7 +231,7 @@ public class Esercizio1 {
         // }
 
         String pairList = "es1/parent_child_pairs.txt";
-        String nestedList = "es1/nested2.txt";
+        String nestedList = "es1/nested_list.txt";
 
         TreeNode tree1 = buildTreeFromPairs(pairList);
         TreeNode tree2 = buildTreeFromNestedList(nestedList);
