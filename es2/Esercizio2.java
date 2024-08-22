@@ -6,6 +6,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.TreeMap;
@@ -116,14 +117,33 @@ public class Esercizio2 {
         // dato che ci sono lettere che combinano due lettere, mi conviene controllare
         // prima quelle grandi, ovvero quelle che stanno in fondo alla mappa
 
-        for (int i = 0; i < n; i++) {
-            for (int j = i + 1; j <= n; j += maxLetter) {
+        Iterator<Map.Entry<String, Character>> iterator = ((TreeMap<String, Character>) huffmanMap)
+                .descendingMap()
+                .entrySet()
+                .iterator();
+
+        while (iterator.hasNext()) {
+            Map.Entry<String, Character> entry = iterator.next();
+
+            int count = 0;
+            for (int i = 0; i < n; i++) {
+
+                count++;
                 // stampa il blocco di codice che sto analizzando
                 // per evitare di andare out of bounds
                 // verifico che il blocco di codice che sto analizzando non vada oltre la fine
                 // della stringa
+                if (i + entry.getKey().length() > n) {
+                    break;
+                } else {
+                    // stampa il blocco di codice che sto analizzando
+                    System.out.println("Count: " + count + " \t" + S.substring(i, entry.getKey().length() + i));
+                }
+
             }
+            System.out.println();
         }
+
         return sequences;
 
     }
