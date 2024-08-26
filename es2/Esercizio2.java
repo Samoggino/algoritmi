@@ -48,39 +48,15 @@ public class Esercizio2 {
     }
 
     /**
-     * Stampa le sequenze decodificate
-     * 
-     * @param sequences Lista delle sequenze decodificate
-     */
-    private static void printSequences(List<String> sequences) {
-        if (sequences.isEmpty()) {
-            System.out.println(0);
-        } else {
-            // Stampa in griglia le decodifiche
-            int i = 0;
-            System.out.println(sequences.size());
-            for (String seq : sequences) { // O(k) con k = numero di sequenze
-                System.out.print(seq);
-                if (++i % 10 == 0) {
-                    System.out.println();
-                } else {
-                    System.out.print("\t");
-                }
-            }
-            System.out.println();
-        }
-    }
-
-    /**
      * Decodifica la stringa binaria usando la programmazione dinamica con
      * memoization, per evitare di ricalcolare le stesse soluzioni più volte.
      * 
      * La complessità temporale è compresa tra O(n^2) e O(n*2^n), dove n è la
-     * lunghezza della stringa binaria.
+     * lunghezza della stringa binaria in input.
      * 
-     * La complessità è dovuta al fatto che per ogni prefisso della stringa binaria
-     * (m prefissi), si prova a decodificarlo, e per ogni prefisso si prova a
-     * decodificare la sottostringa rimanente, fino a quando non si arriva alla fine
+     * La complessità deriva dal fatto che si tenta di decodificare la stringa
+     * binaria per ogni possibile prefisso (m prefissi) e, per ciascun prefisso, si
+     * prova a decodificare la sottostringa restante, fino a raggiungere la fine
      * della stringa binaria.
      * 
      * La memoization permette di evitare di ricalcolare le stesse soluzioni più
@@ -138,8 +114,21 @@ public class Esercizio2 {
                 String letter = huffmanMap.get(prefix); // O(1) per accesso alla mappa
                 String suffix = codice.substring(i);
 
-                if (suffix.isEmpty()) {// Se la sottostringa è vuota, allora la decodifica è completa
+                /**
+                 * Se la sottostringa rimanente è vuota, allora la decodifica è completa e
+                 * letter è la lettera finale della soluzione corrente.
+                 * 
+                 * Ad esempio se ho una stringa 0010, dato che le soluzioni sono:
+                 * 0010 -> [AD, CA, E]
+                 * 
+                 * le lettere che chiudono il ciclo sono D, A ed E.
+                 * 
+                 * Chiudono il ciclo per ogni sequenza possibile.
+                 * 
+                 */
+                if (suffix.isEmpty()) {
                     sequences.add(letter);
+                    System.out.println(letter);
                 } else {
                     // Decodifica ricorsiva della sottostringa rimanente
                     List<String> suffixDecodings = decode(suffix, memo);
@@ -183,6 +172,31 @@ public class Esercizio2 {
                 maxLength = length;
             }
         }
-        return maxLength;
+        return maxLength; // in questo caso è 4, ma può variare a seconda della mappa
     }
+
+    /**
+     * Stampa le sequenze decodificate
+     * 
+     * @param sequences Lista delle sequenze decodificate
+     */
+    private static void printSequences(List<String> sequences) {
+        if (sequences.isEmpty()) {
+            System.out.println(0);
+        } else {
+            // Stampa in griglia le decodifiche
+            int i = 0;
+            System.out.println(sequences.size());
+            for (String seq : sequences) { // O(k) con k = numero di sequenze
+                System.out.print(seq);
+                if (++i % 10 == 0) {
+                    System.out.println();
+                } else {
+                    System.out.print("\t");
+                }
+            }
+            System.out.println();
+        }
+    }
+
 }
