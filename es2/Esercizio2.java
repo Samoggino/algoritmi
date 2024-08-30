@@ -30,8 +30,13 @@ public class Esercizio2 {
     }
 
     public static void main(String[] args) throws IOException {
-        String fileName = "es2/input.txt";
-        BufferedReader reader = new BufferedReader(new FileReader(fileName));
+
+        if (args.length == 0) {
+            System.err.println("Usage: java Esercizio2 <input_file>");
+            System.exit(1);
+        }
+
+        BufferedReader reader = new BufferedReader(new FileReader(args[0]));
         String binaryInput = reader.readLine().trim();
         reader.close();
 

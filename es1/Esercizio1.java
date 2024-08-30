@@ -252,17 +252,13 @@ public class Esercizio1 {
 
     public static void main(String[] args) {
 
-        // if (args.length != 2) {
-        // System.err.println("Usage: java Esercizio1 <parent_child_pairs_file>
-        // <nested_list_file>");
-        // System.exit(1);
-        // }
+        if (args.length != 2) {
+            System.out.println("Usage: java Esercizio1 <pairList> <nestedList>");
+            return;
+        }
 
-        String pairList = "es1/parent_child_pairs.txt";
-        String nestedList = "es1/nested_list.txt";
-
-        TreeNode tree1 = buildTreeFromPairs(pairList); // O(n) dove n è il numero di nodi
-        TreeNode tree2 = buildTreeFromNestedList(nestedList); // O(k) dove k è il numero di caratteri della stringa
+        TreeNode tree1 = buildTreeFromPairs(args[0]); // O(n) dove n è il numero di nodi
+        TreeNode tree2 = buildTreeFromNestedList(args[1]); // O(k) dove k è il numero di caratteri della stringa
 
         // printTree(tree1);
         // System.out.println();
