@@ -54,7 +54,14 @@ public class Esercizio3 {
 
         @Override
         public String toString() {
-            return "Node [id=" + id + ", attesa=" + attesa + " nodi adiacenti=" + lista_di_adiacenza + "]";
+
+            StringBuilder sb = new StringBuilder();
+            sb.append("Node [id=").append(id).append(", attesa=").append(attesa).append(" nodi adiacenti=");
+            for (Node node : lista_di_adiacenza) {
+                sb.append(node.id).append(" ");
+            }
+
+            return sb.append("]").toString();
         }
     }
 
@@ -203,12 +210,16 @@ public class Esercizio3 {
 
     // stampa il cammino minimo
     private static void recPrint(int[] t, int i) {
+
+        StringBuilder sb = new StringBuilder();
+        sb.append(i).append(" ");
+
         if (t[i] == -1) {
-            System.out.print(i + " ");
+            System.out.print(sb.toString());
             return;
         }
         recPrint(t, t[i]);
-        System.out.print(i + " ");
+        System.out.print(sb.toString());
     }
 
     public static void main(String[] args) {
@@ -226,6 +237,7 @@ public class Esercizio3 {
             attesa_nodo = new Random(Integer.parseInt(args[1])).nextDouble();
         }
 
-        camminiMinimi(buildGraph(args[0], attesa_nodo));
+        Graph g = buildGraph(args[0], attesa_nodo);
+        camminiMinimi(g);
     }
 }

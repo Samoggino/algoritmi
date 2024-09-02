@@ -11,25 +11,50 @@ import java.util.Stack;
 import java.util.TreeSet;
 
 /**
- * - k numero di caratteri della stringa
- * - n numero di nodi dell'albero
- * - m numero che ha più cifre
+ * Il metodo `buildTreeFromPairs` costruisce un albero in O(n) dove n è il
+ * numero di figli.
+ *
+ * Il metodo `buildTreeFromNestedList` costruisce un albero a partire da una
+ * stringa
+ * che rappresenta una lista annidata. Il costo di questo metodo è O(k), dove k
+ * è il numero di caratteri della stringa. La costruzione dell'albero avviene
+ * attraverso una lettura carattere per carattere e l'uso di uno stack.
+ * Grazie all'ultimo if, il metodo salta le iterazioni non importanti, come
+ * quelle con virgole o spazi, in questo modo il costo computazionale è
+ * inferiore
+ * al puro O(k).
+ *
+ * Il metodo `areTreesEqual` dà il via alla ricorsione per verificare
+ * l'uguaglianza, che avviene nel metodo `recAreEquals`.
+ * Il metodo recAreEquals costa O(log n) per ogni nodo, poichè ordina i figli
+ * dei nodi in TreeSet, che ha complessità logaritmica per l'inserimento e
+ * l'accesso.
+ * Quindi la complessità totale del metodo è O(n log n).
  * 
- * 
+ *
+ * Il metodo `printTree` stampa ogni nodo dell'albero, a partire dal nodo
+ * radice, e ha costo O(n).
+ * Utilizza StringBuilder per ottimizzare la creazione della stringa da
+ * stampare.
  */
 public class Esercizio1 {
     static class TreeNode implements Comparable<TreeNode> {
         int value;
         Set<TreeNode> children;
 
-        TreeNode(int value) { // O(1)
+        TreeNode(int value) {
             this.value = value;
-            this.children = new HashSet<>(); // O(1)
+            this.children = new HashSet<>();
         }
 
         @Override
-        public String toString() { // O(n) poichè la root.children potrebbe contenere tutti i nodi dell'albero
-            return "TreeNode [value=" + value + ", children=" + children + "]";
+        public String toString() {
+            StringBuilder sb = new StringBuilder();
+            sb.append("TreeNode [value=").append(value).append(", children=");
+            for (TreeNode child : children) {
+                sb.append(child.value).append(" ");
+            }
+            return sb.append("]").toString();
         }
 
         @Override
@@ -38,18 +63,16 @@ public class Esercizio1 {
         }
     }
 
+    // costruisce il pair tree
     static TreeNode buildTreeFromPairs(String filename) {
 
-        // ricorda che il file parent_child_pairs.txt è nella cartella es1, dovrà essere
-        // eseguito da terminale, quindi il path sarà parent_child_pairs.txt
-        Map<Integer, TreeNode> nodeMap = new HashMap<>(); // tutte le operazioni su map sono O(1) considerando il basso
-                                                          // numero di nodi
+        Map<Integer, TreeNode> nodeMap = new HashMap<>();
         Set<Integer> parentSet = new HashSet<>(); // tutte le operazioni su hashset sono O(1)
         Set<Integer> childSet = new HashSet<>(); // tutte le operazioni su hashset sono O(1)
 
         BufferedReader br;
         try {
-            br = new BufferedReader(new FileReader("es1/parent_child_pairs.txt"));
+            br = new BufferedReader(new FileReader(filename));
             String line;
             while ((line = br.readLine()) != null) { // le righe sono n - 1, perchè la root non ha una riga in cui sta a
                                                      // destra della virgola
@@ -60,6 +83,7 @@ public class Esercizio1 {
                 int parentValue = Integer.parseInt(parts[0].trim());
                 int childValue = Integer.parseInt(parts[1].trim());
 
+                // Se il nodo non esiste nella mappa, crealo
                 TreeNode parentNode = nodeMap.computeIfAbsent(parentValue, k -> new TreeNode(k)); // O(1)
                 TreeNode childNode = nodeMap.computeIfAbsent(childValue, k -> new TreeNode(k)); // O(1)
 
@@ -68,45 +92,30 @@ public class Esercizio1 {
                 childSet.add(childValue); // O(1)
             }
         } catch (FileNotFoundException e) {
+            // problema con il path
             e.printStackTrace();
-        } catch (NumberFormatException e) {
-            e.printStackTrace();
-        } catch (IOException e) {
+        } catch (Exception e) {
             e.printStackTrace();
         }
 
-        parentSet.removeAll(childSet); // O(n) dove n è il numero di nodi
+        return nodeMap.get(getRoot(parentSet, childSet)); // O(1)
+    }
+
+    private static int getRoot(Set<Integer> parentSet, Set<Integer> childSet) {
+        parentSet.removeAll(childSet); // O(n)
         if (parentSet.size() != 1) {
             throw new IllegalStateException("L'albero dovrebbe avere esattamente una radice.");
         }
 
-        return nodeMap.get(parentSet.iterator().next()); // O(1)
+        return parentSet.iterator().next();
+
     }
 
-    static void printTree(TreeNode root) {
-        if (root == null) {
-            System.out.println("Root is null");
-            return;
-        }
-
-        if (root.children.isEmpty()) {
-            return;
-        } else {
-            System.out.print(root.value + " -> ");
-        }
-        for (TreeNode child : root.children) {
-            System.out.print(child.value + " ");
-        }
-        System.out.println();
-        for (TreeNode child : root.children) {
-            printTree(child);
-        }
-    }
-
+    // costruisce il nested tree
     static TreeNode buildTreeFromNestedList(String filename) {
 
         try {
-            BufferedReader br = new BufferedReader(new FileReader("es1/nested_list.txt"));
+            BufferedReader br = new BufferedReader(new FileReader(filename));
             String line = br.readLine().trim();
             br.close();
 
@@ -119,13 +128,15 @@ public class Esercizio1 {
                 switch (line.charAt(i)) {
                     case '[':
                         // Trova il numero che segue l'apertura della parentesi
-                        int start = i + 1;
+                        StringBuilder sb = new StringBuilder();
 
                         // costo O(m) dove m è il numero che ha più cifre
                         while (i + 1 < line.length() && Character.isDigit(line.charAt(i + 1))) {
                             i++;
+                            sb.append(line.charAt(i));
                         }
-                        int num = Integer.parseInt(line.substring(start, i + 1));
+
+                        int num = Integer.parseInt(sb.toString());
                         TreeNode newNode = new TreeNode(num);
 
                         // Se lo stack non è vuoto, aggiungi il nuovo nodo come figlio del nodo in cima
@@ -152,14 +163,12 @@ public class Esercizio1 {
                         break;
                 }
 
-                // se il carattere successivo è una virgola o uno spazio, fai i+2
-                if (i + 1 < line.length() && (line.charAt(i + 1) == ',')) {
-                    // questo caso è quando ho una virgola e poi uno spazio, quindi devo fare i+3,
-                    // ovvero l'incremento base + 2
-                    i += 3;
+                if (i + 1 < line.length() && line.charAt(i + 1) == ',') {
+                    i += 3; // Salta la virgola e lo spazio successivo per ridurre le iterazioni
                 } else {
                     i++;
                 }
+
             }
             return root;
 
@@ -170,20 +179,8 @@ public class Esercizio1 {
         return null;
     }
 
-    /**
-     * Ricorsione per costruire l'albero da una stringa nested
-     * 
-     * Il costo computazionale di questo metodo è O(n) dove n è il numero di nodi,
-     * poichè i caratteri della stringa vengono letti solo se sono numeri, grazie al
-     * salto in avanti quando i caratteri sono virgola o spazio.
-     * 
-     * @param root1
-     * @param root2
-     * @return sono uguali o no
-     */
+    // lancia la ricorsione
     public static boolean areTreesEqual(TreeNode root1, TreeNode root2) {
-
-        Map<TreeNode, TreeNode> visited = new HashMap<>();
 
         if (root1 == null || root2 == null) {
             return root1 == root2;
@@ -193,61 +190,65 @@ public class Esercizio1 {
             return false;
         }
 
-        return recAreEquals(root1, root2, visited);
+        return recAreEquals(root1, root2);
     }
 
-    /**
-     * Questo metodo viene richiamato ricorsivamente n - 1, poichè il numero di nodi
-     * è
-     * n, e il costo di ogni chiamata è O(log n) poichè si fa un'operazione di
-     * confronto tra due TreeSet.
-     * 
-     * @param root1
-     * @param root2
-     * @return
-     */
-    private static boolean recAreEquals(TreeNode root1, TreeNode root2, Map<TreeNode, TreeNode> visited) { // eseguito n
-                                                                                                           // volte
+    // metodo ricorsivo eseguito n volte
+    private static boolean recAreEquals(TreeNode root1, TreeNode root2) {
 
-        // prova ad usare una mappa per segnare se hai già verificato i nodi, in modo da
-        // eseguire la ricorsione solo una volta per ogni nodo
         TreeSet<TreeNode> childSet1 = new TreeSet<>(root1.children); // log n
         TreeSet<TreeNode> childSet2 = new TreeSet<>(root2.children); // log n
 
         if (childSet1.size() != childSet2.size()) { // O(1)
-            System.out.println("Different number of children");
             return false;
         }
 
         if (root1.value != root2.value) { // O(1)
-            System.out.println("Different value");
             return false;
         }
 
         Iterator<TreeNode> iter1 = childSet1.iterator(); // O(1)
         Iterator<TreeNode> iter2 = childSet2.iterator(); // O(1)
 
-        // il while cicla su tutti i figli di root1 e root2, quindi il costo medio è
-        // O(n) * O(log n) = O(n log n)
         while (iter1.hasNext() && iter2.hasNext()) {
             TreeNode child1 = iter1.next(); // O(log n) nel caso pessimo, O(1) nel caso medio
             TreeNode child2 = iter2.next(); // O(log n) nel caso pessimo, O(1) nel caso medio
 
-            if (visited.containsKey(child1) || visited.containsKey(child2)) { // O(1)
-                return false;
-            } else {
-                visited.put(child1, child2); // O(1)
-                visited.put(child2, child1); // O(1)
-            }
-
-            System.out.println("Comparing " + child1.value + " and " + child2.value);
-
-            if (!recAreEquals(child1, child2, visited)) { // O(log n)
+            if (!recAreEquals(child1, child2)) { // O(log n)
                 return false;
             }
         }
 
         return true;
+    }
+
+    // stampa un albero ricorsivamente
+    static void printTree(TreeNode root) {
+        // Verifica se il nodo radice è nullo
+        if (root == null) {
+            System.out.println("Root is null");
+            return;
+        }
+
+        StringBuilder sb = new StringBuilder();
+
+        // Aggiungi il valore del nodo radice se ha figli
+        if (!root.children.isEmpty()) {
+            sb.append(root.value).append(" -> ");
+
+            // Aggiungi i valori dei figli
+            for (TreeNode child : root.children) {
+                sb.append(child.value).append(" ");
+            }
+
+            // Stampa il risultato
+            System.out.println(sb.toString().trim());
+        }
+
+        // Stampa ricorsivamente gli alberi dei figli
+        for (TreeNode child : root.children) {
+            printTree(child);
+        }
     }
 
     public static void main(String[] args) {
