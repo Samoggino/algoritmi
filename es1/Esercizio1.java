@@ -31,7 +31,6 @@ import java.util.TreeSet;
  * l'accesso.
  * Quindi la complessità totale del metodo è O(n log n).
  * 
- *
  * Il metodo `printTree` stampa ogni nodo dell'albero, a partire dal nodo
  * radice, e ha costo O(n).
  * Utilizza StringBuilder per ottimizzare la creazione della stringa da
