@@ -1,3 +1,9 @@
+
+/****
+ * SIMONE SAMOGGIA 970758
+ * simone.samoggia2@studio.unibo.it
+ * 
+ */
 import java.io.BufferedReader;
 import java.io.FileReader;
 import java.io.IOException;

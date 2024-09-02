@@ -1,3 +1,9 @@
+
+/****
+ * SIMONE SAMOGGIA 970758
+ * simone.samoggia2@studio.unibo.it
+ * 
+ */
 import java.io.BufferedReader;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
@@ -264,10 +270,10 @@ public class Esercizio1 {
         // System.out.println();
         // printTree(tree2);
 
-        if (areTreesEqual(tree1, tree2)) { 
-            System.out.println("Alberi uguali");
+        if (areTreesEqual(tree1, tree2)) {
+            System.out.println("I due alberi sono uguali");
         } else {
-            System.out.println("Alberi diversi");
+            System.out.println("I due alberi sono diversi");
         }
 
     }

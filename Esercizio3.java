@@ -1,3 +1,9 @@
+
+/****
+ * SIMONE SAMOGGIA 970758
+ * simone.samoggia2@studio.unibo.it
+ * 
+ */
 import java.io.BufferedReader;
 import java.io.FileReader;
 import java.io.IOException;
@@ -24,9 +30,13 @@ import java.util.Random;
  * 
  */
 public class Esercizio3 {
-    static Random random = new Random(10000);
+    static Random random = new Random(970758);
+
+    // usa numeri random come attesa per ogni nodo con seed numero di matricola
     // static boolean useRandom = true;
-    static boolean useRandom = true;
+
+    // usa 5.0 come attesa per ogni nodo
+    static boolean useRandom = false;
 
     static class Node {
         public final int id;
