@@ -65,13 +65,7 @@ public class Esercizio3 {
         }
     }
 
-    /**
-     * la prima riga del file contiene il numero di nodi
-     * la seconda riga contiene il numero di archi
-     * e le successive righe contengono nodo1 nodo2 attesa
-     * 
-     * @param filename
-     */
+    // costruisce il grafo, i primi due valori sono il numero di nodi e di archi
     private static Graph buildGraph(String filename, double attesa_nodo) {
 
         try (BufferedReader br = new BufferedReader(new FileReader(filename))) {
