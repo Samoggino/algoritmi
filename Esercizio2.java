@@ -1,4 +1,4 @@
-package es2;
+
 
 import java.io.BufferedReader;
 import java.io.FileReader;
@@ -16,8 +16,8 @@ import java.util.Map;
  * evitando calcoli ripetuti e riducendo la complessità temporale.
  * 
  * Poichè ogni codifica può essere decodificata in più modi, la complessità
- * dell'algoritmo è esponenziale, con una complessità di O(2^n), dove n è la
- * lunghezza della stringa binaria in input.
+ * dell'algoritmo è esponenziale, con una complessità teorica di O(2^n), dove n
+ * è la lunghezza della stringa binaria in input.
  * Questo è vero per ogni carattere della stringa binaria, quindi la complessità
  * totale è O(n * 2^n).
  * 
@@ -141,7 +141,6 @@ public class Esercizio2 {
 
         // Memorizza la lista di decodifiche trovate per la sottostringa corrente
         memo.put(key, sequences);
-
         return sequences;
     }
 
@@ -159,13 +158,16 @@ public class Esercizio2 {
 
     // stampa le sequenze decodificate
     static void printSequences(List<String> sequences) {
+        StringBuilder sb = new StringBuilder();
         if (sequences.isEmpty()) {
             System.out.println(0);
         } else {
-            System.out.println(sequences.size());
+            sb.append(sequences.size()).append(',').append('\n');
+
             for (String seq : sequences) {
-                System.out.println(seq + ",");
+                sb.append(seq).append(',').append('\n');
             }
+            System.out.println(sb.toString().trim());
         }
     }
 

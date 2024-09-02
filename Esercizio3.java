@@ -1,4 +1,4 @@
-package es3;
+
 
 import java.io.BufferedReader;
 import java.io.FileReader;
@@ -18,38 +18,25 @@ import java.util.Random;
  * Le operazioni sulla coda sono in O(log n) poiché la coda è una PriorityQueue
  * che è implementata con un heap binario.
  * 
- * La ricerca del cammino minimo è in O((n + m) * log n).
+ * La ricerca del cammino minimo è basato sull'algoritmo di Dijkstra
+ * e ha costo O((n + m) * log n).
  * La stampa del cammino minimo è in O(n).
  * 
  * La complessità temporale totale è quindi O((n + m) * log n).
  * 
- * La complessità spaziale è O(n) per memorizzare i nodi, O(m) per memorizzare
- * gli archi, O(n) per memorizzare il percorso e O(n) per memorizzare i tempi.
- * 
- * La complessità spaziale totale è quindi O(n + m).
- * 
- * Dettagli implementativi:
- * 
- * La ricerca del cammino minimo avviene utilizzando una coda di priorità per
- * gestire i nodi da esplorare, e il percorso viene tracciato in un array di
- * interi.
- * 
- * Se esiste un cammino minimo, viene stampato il costo totale e il percorso
- * trovato, altrimenti viene stampato "Non raggiungibile".
- * 
- * Il tempo di attesa per ogni nodo può essere fisso o generato casualmente, a
- * seconda dei parametri di input.
  */
 public class Esercizio3 {
+    static Random random = new Random(10000);
+    // static boolean useRandom = true;
+    static boolean useRandom = true;
 
     static class Node {
         public final int id;
-        public double attesa;
+        public double attesa = 5.0;
         public final List<Node> lista_di_adiacenza = new ArrayList<>();
 
-        Node(int key, double attesa_input) {
+        Node(int key) {
             this.id = key;
-            this.attesa = attesa_input;
         }
 
         @Override
@@ -66,13 +53,13 @@ public class Esercizio3 {
     }
 
     // costruisce il grafo, i primi due valori sono il numero di nodi e di archi
-    private static Graph buildGraph(String filename, double attesa_nodo) {
+    private static Graph buildGraph(String filename) {
 
         try (BufferedReader br = new BufferedReader(new FileReader(filename))) {
             int numNodes = Integer.parseInt(br.readLine().trim());
             int numEdges = Integer.parseInt(br.readLine().trim());
 
-            Graph graph = new Graph(numNodes, numEdges, attesa_nodo);
+            Graph graph = new Graph(numNodes, numEdges);
 
             String line;
             while ((line = br.readLine()) != null) {
@@ -97,18 +84,18 @@ public class Esercizio3 {
         private final Map<String, Double> edgeMap; // implementata con HashMap e quindi accesso in O(1)
 
         // costruisce un grafo con numNodes nodi e numEdges archi
-        Graph(int numNodes, int numEdges, double attesa_nodo) {
+        Graph(int numNodes, int numEdges) {
             this.nodes = new Node[numNodes];
             this.edgeMap = new HashMap<String, Double>(numEdges);
 
             for (int j = 0; j < numNodes; j++) {
-                insertNode(j, attesa_nodo);
+                insertNode(j);
             }
         }
 
         // inserisce un nodo nel grafo
-        private void insertNode(int nodeID, double attesa_nodo) {
-            this.nodes[nodeID] = new Node(nodeID, attesa_nodo);
+        private void insertNode(int nodeID) {
+            this.nodes[nodeID] = new Node(nodeID);
         }
 
         // inserisce un arco tra due nodi
@@ -131,7 +118,13 @@ public class Esercizio3 {
         }
 
         // restituisce il tempo di attesa per il nodo i al tempo t
-        double attesa(int i, double tempo_t) { // accesso in ArrayList O(1)
+        double attesa(int i, double tempo_t) {
+
+            if (useRandom) {
+                double attesa_nodo = random.nextDouble() * 10;
+                this.nodes[i].attesa = attesa_nodo;
+            }
+
             return tempo_t + this.nodes[i].attesa;
         }
 
@@ -223,15 +216,6 @@ public class Esercizio3 {
             return;
         }
 
-        double attesa_nodo = 5.0;
-
-        if (args.length > 1) {
-            // se è presente il secondo numero, genero un random con quel seed,
-            // altrimenti uso 5.0
-            attesa_nodo = new Random(Integer.parseInt(args[1])).nextDouble();
-        }
-
-        Graph g = buildGraph(args[0], attesa_nodo);
-        camminiMinimi(g);
+        camminiMinimi(buildGraph(args[0]));
     }
 }
