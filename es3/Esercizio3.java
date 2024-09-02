@@ -11,40 +11,45 @@ import java.util.PriorityQueue;
 import java.util.Random;
 
 /**
- * 
  * Considerando n nodi e m archi, la complessità dell'algoritmo è la seguente:
  * 
- * Le operazioni di caricamento del grafo sono in O(n + m)
+ * Le operazioni di caricamento del grafo sono in O(n + m).
+ * Le operazioni di inizializzazione degli array sono in O(n).
+ * Le operazioni sulla coda sono in O(log n) poiché la coda è una PriorityQueue
+ * che è implementata con un heap binario.
  * 
- * Le operazioni di inizializzazione degli array sono in O(n)
- * Le operazioni sulla coda sono in O(log n) perchè la coda è una PriorityQueue
- * ed è implementata con un heap binario
+ * La ricerca del cammino minimo è in O((n + m) * log n).
+ * La stampa del cammino minimo è in O(n).
  * 
- * La ricerca del cammino minimo è in O((n + m) * log n)
- * La stampa del cammino minimo è in O(n)
+ * La complessità temporale totale è quindi O((n + m) * log n).
  * 
- * La complessità totale è O((n + m) * log n)
+ * La complessità spaziale è O(n) per memorizzare i nodi, O(m) per memorizzare
+ * gli archi, O(n) per memorizzare il percorso e O(n) per memorizzare i tempi.
  * 
+ * La complessità spaziale totale è quindi O(n + m).
+ * 
+ * Dettagli implementativi:
+ * 
+ * La ricerca del cammino minimo avviene utilizzando una coda di priorità per
+ * gestire i nodi da esplorare, e il percorso viene tracciato in un array di
+ * interi.
+ * 
+ * Se esiste un cammino minimo, viene stampato il costo totale e il percorso
+ * trovato, altrimenti viene stampato "Non raggiungibile".
+ * 
+ * Il tempo di attesa per ogni nodo può essere fisso o generato casualmente, a
+ * seconda dei parametri di input.
  */
 public class Esercizio3 {
 
-    static int num_matricola_seed = 970758;
-    static Double random = new Random(10000).nextDouble();
-    // static Random random2 = new Random(10000); // attese diverse per tutti i nodi
-
-    static class Node implements Comparable<Node> {
+    static class Node {
         public final int id;
-        // public final double attesa = 5;
-        public final double attesa = random; // da commentare in Caso 1
+        public double attesa;
         public final List<Node> lista_di_adiacenza = new ArrayList<>();
 
-        Node(int key) {
+        Node(int key, double attesa_input) {
             this.id = key;
-        }
-
-        @Override
-        public int compareTo(Node o) {
-            return Double.compare(this.attesa, o.attesa);
+            this.attesa = attesa_input;
         }
 
         @Override
@@ -53,134 +58,114 @@ public class Esercizio3 {
         }
     }
 
-    static class Graph {
-        private final List<Node> nodes; // implemetata con ArrayList e quindi accesso in O(1)
-        private Map<String, Double> archiMap; // implementata con HashMap e quindi accesso in O(1)
+    /**
+     * la prima riga del file contiene il numero di nodi
+     * la seconda riga contiene il numero di archi
+     * e le successive righe contengono nodo1 nodo2 attesa
+     * 
+     * @param filename
+     */
+    private static Graph buildGraph(String filename, double attesa_nodo) {
 
-        Graph(String filename) {
-            nodes = new ArrayList<>();
-            buildGraph(filename);
+        try (BufferedReader br = new BufferedReader(new FileReader(filename))) {
+            int numNodes = Integer.parseInt(br.readLine().trim());
+            int numEdges = Integer.parseInt(br.readLine().trim());
+
+            Graph graph = new Graph(numNodes, numEdges, attesa_nodo);
+
+            String line;
+            while ((line = br.readLine()) != null) {
+                String[] parts = line.split(" ");
+                int nodo1 = Integer.parseInt(parts[0]);
+                int nodo2 = Integer.parseInt(parts[1]);
+                double tempo_di_percorrenza = Double.parseDouble(parts[2]);
+
+                graph.insertEdge(nodo1, nodo2, tempo_di_percorrenza);
+            }
+            return graph;
+
+        } catch (IOException e) {
+            e.printStackTrace();
+            return null;
         }
+    }
 
-        /**
-         * la prima riga del file contiene il numero di nodi
-         * la seconda riga contiene il numero di archi
-         * e le successive righe contengono nodo1 nodo2 attesa
-         * 
-         * @param filename
-         */
-        private void buildGraph(String filename) {
-            try (BufferedReader br = new BufferedReader(new FileReader(filename))) {
-                int numNodi = Integer.parseInt(br.readLine().trim());
-                int numArchi = Integer.parseInt(br.readLine().trim());
-                archiMap = new HashMap<String, Double>(numArchi);
+    static class Graph {
 
-                for (int j = 0; j < numNodi; j++) {
-                    insertNode(j);
-                }
+        private final Node[] nodes; // Array accesso in O(1)
+        private final Map<String, Double> edgeMap; // implementata con HashMap e quindi accesso in O(1)
 
-                String line;
-                while ((line = br.readLine()) != null) {
-                    String[] parts = line.split(" ");
-                    int nodo1 = Integer.parseInt(parts[0]);
-                    int nodo2 = Integer.parseInt(parts[1]);
-                    double tempo_di_percorrenza = Double.parseDouble(parts[2]);
+        // costruisce un grafo con numNodes nodi e numEdges archi
+        Graph(int numNodes, int numEdges, double attesa_nodo) {
+            this.nodes = new Node[numNodes];
+            this.edgeMap = new HashMap<String, Double>(numEdges);
 
-                    insertEdge(nodo1, nodo2, tempo_di_percorrenza);
-                }
-            } catch (IOException e) {
-                e.printStackTrace();
+            for (int j = 0; j < numNodes; j++) {
+                insertNode(j, attesa_nodo);
             }
         }
 
-        Node insertNode(int nodeID) {
-            Node node = new Node(nodeID);
-            this.nodes.add(node);
-            return node;
+        // inserisce un nodo nel grafo
+        private void insertNode(int nodeID, double attesa_nodo) {
+            this.nodes[nodeID] = new Node(nodeID, attesa_nodo);
         }
 
+        // inserisce un arco tra due nodi
         void insertEdge(int id1, int id2, double tempo_di_percorrenza) {
-            Node nodo1 = this.nodes.get(id1);
-            Node nodo2 = this.nodes.get(id2);
+            Node nodo1 = this.nodes[id1];
+            Node nodo2 = this.nodes[id2];
 
-            // predo nodo1 e nodo2, faccio l'hash e lo metto in tempiMap
-            archiMap.put(id1 + "-" + id2, tempo_di_percorrenza);
+            // dato che gli id sono univoci, posso usarne la concatenazione come chiave
+            edgeMap.put(id1 + "-" + id2, tempo_di_percorrenza);
 
             // aggiungo il nodo2 alla lista di adiacenza di nodo1
             nodo1.lista_di_adiacenza.add(nodo2);
         }
 
-        void printGraph() {
+        // stampa il grafo
+        void printGraph() { // O(n)
             for (Node node : this.nodes) {
                 System.out.println(node);
             }
         }
 
-        // restituisce il tempo di attesa per il nodo i
-        public double attesa(int i, double tempo_corrente) { // accesso in ArrayList O(1)
-            return tempo_corrente + this.nodes.get(i).attesa;
+        // restituisce il tempo di attesa per il nodo i al tempo t
+        double attesa(int i, double tempo_t) { // accesso in ArrayList O(1)
+            return tempo_t + this.nodes[i].attesa;
         }
 
-        public Double getArco(int id_nodo1, int id_nodo2) { // accesso alla mappa O(1)
-            return archiMap.get(id_nodo1 + "-" + id_nodo2);
+        // restituisce il tempo di percorrenza tra i nodi nodo1 e nodo2
+        double getEdge(int id_nodo1, int id_nodo2) { // accesso alla mappa O(1)
+            return edgeMap.get(id_nodo1 + "-" + id_nodo2);
         }
 
     }
 
-    /**
-     * La soluzione per tempo di attesa = 5.0 è:
-     * 99.14
-     * 0 3 2 4
-     * 
-     * @param graph
-     */
+    // ricerca del cammino minimo
     public static void camminiMinimi(Graph graph) {
-        // nodo sorgente e destinazione
-        int dim = graph.nodes.size();
-        Node sorgente = graph.nodes.get(0);
-
-        /**
-         * Inizializzazione delle strutture dati
-         * 
-         * La PriorityQueue è implementata con un min-heap binario e quindi l'accesso è
-         * in O(log n), mentre la sua inizializzazione è in O(1) poichè viene
-         * inizializzata con la dimensione della lista di nodi del grafo.
-         * 
-         * Gli array t, dist e visitati sono inizializzati in O(n)
-         * 
-         * L'aggiunta del nodo sorgente alla coda è in O(log n)
-         * 
-         * La complessità totale dell'inizializzazione è in O(n)
-         */
+        int dim = graph.nodes.length;
+        Node sorgente = graph.nodes[0];
 
         int[] percorso = new int[dim];
-        double[] dist = new double[dim];
+        double[] tempo = new double[dim];
         boolean[] visitati = new boolean[dim];
-        PriorityQueue<Node> queue = new PriorityQueue<Node>(dim);
+        PriorityQueue<Node> queue = new PriorityQueue<Node>(
+                dim,
+                (n1, n2) -> Double.compare(tempo[n1.id], tempo[n2.id]));
 
         for (int i = 1; i < dim; i++) {
-            dist[i] = Double.MAX_VALUE;
+            tempo[i] = Double.MAX_VALUE;
             visitati[i] = false;
         }
 
         // se non esiste un percorso dalla sorgente alla destinazione
-        // stampa -1
         percorso[0] = -1;
-        dist[0] = 0;
+
+        // nodo 0, istante 0
+        tempo[0] = 0;
         visitati[0] = true;
         queue.add(sorgente);
 
-        /**
-         * La ricerca del cammino minimo è in O((n + m) * log n),
-         * poichè il ciclo while scorre tutti i nodi del grafo e per ogni nodo
-         * scorre tutti i suoi archi.
-         * Ad ogni iterazione del ciclo while, viene estratto un nodo dalla coda
-         * e questo è in O(log n).
-         * 
-         * Quindi itero n + m volte e per ogni iterazione faccio un'operazione in
-         * O(log n), quindi la complessità totale è in O((n + m) * log n)
-         * 
-         */
         while (!queue.isEmpty()) {
             Node nodo = queue.poll();
             int partenza = nodo.id;
@@ -188,11 +173,11 @@ public class Esercizio3 {
             for (Node adiacente : nodo.lista_di_adiacenza) {
 
                 int destinazione = adiacente.id;
-                double tempo_corrente = dist[partenza] + graph.getArco(partenza, destinazione);
-                double tempo_effettivo = graph.attesa(destinazione, tempo_corrente);
+                double tempo_t = tempo[partenza] + graph.getEdge(partenza, destinazione);
+                double tempo_effettivo = graph.attesa(destinazione, tempo_t);
 
-                if (dist[destinazione] > tempo_effettivo) {
-                    dist[destinazione] = tempo_effettivo;
+                if (tempo[destinazione] > tempo_effettivo) {
+                    tempo[destinazione] = tempo_effettivo;
                     percorso[destinazione] = partenza;
                     if (!visitati[destinazione]) {
                         queue.add(adiacente);
@@ -202,26 +187,27 @@ public class Esercizio3 {
             }
         }
 
-        if (dist[dim - 1] == Double.MAX_VALUE) {
-            System.out.println("Non esiste un percorso dalla sorgente alla destinazione");
+        if (tempo[dim - 1] == Double.MAX_VALUE) {
+            System.out.println("Non raggiungibile");
             return;
         } else {
-            System.out.println(dist[dim - 1]);
-            printCamminiMinimi(percorso, dim - 1);
-            System.out.println();
+            printCamminiMinimi(dim, percorso, tempo);
         }
     }
 
-    /**
-     * La stampa del cammino minimo è in O(n),
-     * poichè stampa il cammino minimo dalla destinazione alla sorgente
-     */
-    static void printCamminiMinimi(int[] t, int i) {
+    static void printCamminiMinimi(int dim, int[] percorso, double[] tempo) {
+        System.out.println(tempo[dim - 1]);
+        recPrint(percorso, dim - 1);
+        System.out.println();
+    }
+
+    // stampa il cammino minimo
+    private static void recPrint(int[] t, int i) {
         if (t[i] == -1) {
             System.out.print(i + " ");
             return;
         }
-        printCamminiMinimi(t, t[i]);
+        recPrint(t, t[i]);
         System.out.print(i + " ");
     }
 
@@ -231,10 +217,15 @@ public class Esercizio3 {
             System.out.println("Inserire il nome del file di input");
             return;
         }
-        // "es3/input.txt"
-        Graph g = new Graph(args[0]);
 
-        // g.printGraph();
-        camminiMinimi(g);
+        double attesa_nodo = 5.0;
+
+        if (args.length > 1) {
+            // se è presente il secondo numero, genero un random con quel seed,
+            // altrimenti uso 5.0
+            attesa_nodo = new Random(Integer.parseInt(args[1])).nextDouble();
+        }
+
+        camminiMinimi(buildGraph(args[0], attesa_nodo));
     }
 }
