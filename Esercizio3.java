@@ -1,20 +1,10 @@
 
 /****
- * SIMONE SAMOGGIA 970758
- * simone.samoggia2@studio.unibo.it
+ * NOME:        Samoggia Simone 
+ * MATRICOLA:   0000970758
+ * EMAIL:       simone.samoggia2@studio.unibo.it
  * 
- */
-import java.io.BufferedReader;
-import java.io.FileReader;
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.PriorityQueue;
-import java.util.Random;
-
-/**
+ * 
  * Considerando n nodi e m archi, la complessità dell'algoritmo è la seguente:
  * 
  * Le operazioni di caricamento del grafo sono in O(n + m).
@@ -29,6 +19,16 @@ import java.util.Random;
  * La complessità temporale totale è quindi O((n + m) * log n).
  * 
  */
+import java.io.BufferedReader;
+import java.io.FileReader;
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.PriorityQueue;
+import java.util.Random;
+
 public class Esercizio3 {
     static Random random = new Random(970758);
 
@@ -197,13 +197,14 @@ public class Esercizio3 {
         }
     }
 
+    // stampa il tempo minimo e lancia il metodo ricorsivo per stampare il percorso
     static void printCamminiMinimi(int dim, int[] percorso, double[] tempo) {
         System.out.println(tempo[dim - 1]);
         recPrint(percorso, dim - 1);
         System.out.println();
     }
 
-    // stampa il cammino minimo
+    // stampa il percorso minimo
     private static void recPrint(int[] t, int i) {
 
         StringBuilder sb = new StringBuilder();

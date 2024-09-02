@@ -1,22 +1,10 @@
 
 /****
- * SIMONE SAMOGGIA 970758
- * simone.samoggia2@studio.unibo.it
+ * NOME:        Samoggia Simone 
+ * MATRICOLA:   0000970758
+ * EMAIL:       simone.samoggia2@studio.unibo.it
  * 
- */
-import java.io.BufferedReader;
-import java.io.FileNotFoundException;
-import java.io.FileReader;
-import java.io.IOException;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Iterator;
-import java.util.Map;
-import java.util.Set;
-import java.util.Stack;
-import java.util.TreeSet;
-
-/**
+ * 
  * Il metodo `buildTreeFromPairs` costruisce un albero in O(n) dove n è il
  * numero di figli.
  *
@@ -40,6 +28,19 @@ import java.util.TreeSet;
  * Utilizza `StringBuilder` per ottimizzare la creazione della stringa da
  * stampare.
  */
+
+import java.io.BufferedReader;
+import java.io.FileNotFoundException;
+import java.io.FileReader;
+import java.io.IOException;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Iterator;
+import java.util.Map;
+import java.util.Set;
+import java.util.Stack;
+import java.util.TreeSet;
+
 public class Esercizio1 {
     static class TreeNode implements Comparable<TreeNode> {
         int value;

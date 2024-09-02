@@ -1,18 +1,10 @@
 
 /****
- * SIMONE SAMOGGIA 970758
- * simone.samoggia2@studio.unibo.it
- * 
- */
-import java.io.BufferedReader;
-import java.io.FileReader;
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-
-/**
+ * NOME:        Samoggia Simone 
+ * MATRICOLA:   0000970758
+ * EMAIL:       simone.samoggia2@studio.unibo.it
+ *
+ *  
  * La mappa delle codifiche di Huffman ha grandezza m, dove m è il numero di
  * decodifiche possibili, ed essendo una mappa, l'accesso è in O(1).
  *
@@ -40,6 +32,15 @@ import java.util.Map;
  * poiché è più efficiente rispetto alla concatenazione di stringhe.
  *
  */
+
+import java.io.BufferedReader;
+import java.io.FileReader;
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
 public class Esercizio2 {
 
     private static final Map<String, String> huffmanMap;
