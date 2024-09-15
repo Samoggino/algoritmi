@@ -197,6 +197,10 @@ public class Esercizio1 {
 
     // metodo ricorsivo eseguito n volte
     private static boolean recAreEquals(TreeNode root1, TreeNode root2) {
+        
+        if (root1.value != root2.value) {
+            return false;
+        }
 
         if (root1.children.isEmpty() && root2.children.isEmpty()) {
             return true;
@@ -206,10 +210,6 @@ public class Esercizio1 {
         TreeSet<TreeNode> childSet2 = new TreeSet<>(root2.children); // O(k log k)
 
         if (childSet1.size() != childSet2.size()) {
-            return false;
-        }
-
-        if (root1.value != root2.value) {
             return false;
         }
 
@@ -259,13 +259,16 @@ public class Esercizio1 {
 
     public static void main(String[] args) {
 
-        if (args.length != 2) {
-            System.out.println("Usage: java Esercizio1 <pairList> <nestedList>");
-            return;
-        }
+        // if (args.length != 2) {
+        // System.out.println("Usage: java Esercizio1 <pairList> <nestedList>");
+        // return;
+        // }
 
-        TreeNode tree1 = buildTreeFromPairs(args[0]); // O(n) dove n è il numero di nodi
-        TreeNode tree2 = buildTreeFromNestedList(args[1]); // O(m) dove m è il numero di caratteri della stringa
+        String pairList = "parent_child_pairs.txt";
+        String nestedList = "nested_list.txt";
+
+        TreeNode tree1 = buildTreeFromPairs(pairList); // O(n) dove n è il numero di nodi
+        TreeNode tree2 = buildTreeFromNestedList(nestedList); // O(m) dove m è il numero di caratteri della stringa
 
         // printTree(tree1);
         // System.out.println();
